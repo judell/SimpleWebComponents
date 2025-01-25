@@ -1,77 +1,39 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Web Components</title>
+    <meta charset="UTF-8" />
+    <title>Balanced Web Components</title>
+    <!-- Include your existing base library with text-box, app-button, etc. -->
     <script src="lib.js" defer></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-    </style>
+
+    <!-- Load the app-form module -->
+    <script type="module" src="app-form.js"></script>
 </head>
+
 <body>
-    <app-layout layout="vertical">
-        <h1>Simple Web Components Demo</h1>
+    <!-- Demonstration using app-form -->
+    <app-form data-source="items">
         <text-box placeholder="Enter some text"></text-box>
         <app-button label="Submit"></app-button>
         <list-view></list-view>
-    </app-layout>
+    </app-form>
 
-    <script type="module">
-        import { dbPromise, addItem, getItems } from './db.js';
+    <!-- If desired, you can hook into form events in a separate script -->
+    <script>
+        document.addEventListener('formInit', (e) => {
+            console.log('[Global] formInit event:', e.detail);
+        });
 
-        document.addEventListener('DOMContentLoaded', () => {
-            const button = document.querySelector('app-button');
-            const titleBox = document.querySelector('text-box');
-            const listView = document.querySelector('list-view');
+        document.addEventListener('formSubmit', (e) => {
+            console.log('[Global] formSubmit event, new item:', e.detail.title);
+        });
 
-            // Define loadItems function
-            async function loadItems() {
-                console.log("loadItems called");
-                const items = await getItems();
-                console.log("Items from getItems:", items); // Confirm it's an array
-                if (!Array.isArray(items)) {
-                    console.error("getItems did not return an array:", items);
-                    return;
-                }
-                listView.innerHTML = ''; // Clear existing items in listView
-                items.forEach(item => {
-                    const card = document.createElement('list-card');
-                    card.setAttribute('title', item.title);
-                    listView.appendChild(card);
-                });
-            }
-
-
-            // Attach click handler to the button
-            button.addEventListener('buttonClick', async (event) => {
-                event.preventDefault(); // Ensure the event object is passed correctly
-                const input = titleBox.querySelector('input');
-                const title = input.value.trim();
-                console.log("Input field value:", title);
-
-                if (!title) {
-                    console.log("Validation failed, input is empty.");
-                    alert('Please enter a title!');
-                    return; // Exit early to prevent further execution
-                }
-
-                console.log("Validation passed, adding title:", title);
-                await addItem({ title });
-                console.log("Item added successfully.");
-
-                // Clear the input and reload items
-                input.value = ''; // Clear input field
-                console.log("Input cleared.");
-                await loadItems(); // Reload items
-            });
-
-            // Load items on page load
-            loadItems();
+        document.addEventListener('formError', (e) => {
+            console.warn('[Global] formError event:', e.detail.error);
+            alert('Cannot submit empty title!');
         });
     </script>
 </body>
+
 </html>

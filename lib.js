@@ -1,13 +1,5 @@
 // lib.js
 
-// AppLayout
-customElements.define('app-layout', class extends HTMLElement {
-    connectedCallback() {
-        const layout = this.getAttribute('layout') || 'vertical';
-        this.style.display = layout === 'vertical' ? 'block' : 'flex';
-    }
-});
-
 // TextBox
 customElements.define('text-box', class extends HTMLElement {
     connectedCallback() {
@@ -21,6 +13,10 @@ customElements.define('text-box', class extends HTMLElement {
     get value() {
         return this.querySelector('input').value;
     }
+
+    set value(val) {
+        this.querySelector('input').value = val;
+    }    
 });
 
 // AppButton
@@ -35,7 +31,10 @@ customElements.define('app-button', class extends HTMLElement {
         this.addEventListener('click', (e) => {
             if (e.target === button) {
                 e.stopPropagation();
-                this.dispatchEvent(new CustomEvent('buttonClick'));
+                this.dispatchEvent(new CustomEvent('buttonClick', {
+                    bubbles: true,
+                    composed: true
+                  }));
             }
         });
     }

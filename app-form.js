@@ -1,8 +1,8 @@
-import { addItem, getItems } from './db.js';
+import { getBooks, addBook } from './db.js';
 
 customElements.define('app-form', class extends HTMLElement {
   static get observedAttributes() {
-    return ['data-source']; // Optional: if you want to configure store or table name, etc.
+    return ['data-source']; // if you want to pass "books" or another table name
   }
 
   constructor() {
@@ -11,89 +11,106 @@ customElements.define('app-form', class extends HTMLElement {
   }
 
   connectedCallback() {
-    // Listen for "buttonClick" from child <app-button>
+    // Listen for the custom "buttonClick" event from <app-button>
     this.addEventListener('buttonClick', this.onButtonClick);
 
-    // Dispatch a 'formInit' event so external scripts can hook in if they want
     this.dispatchEvent(new CustomEvent('formInit', {
       bubbles: true,
       composed: true,
       detail: { message: 'app-form initialized' }
     }));
 
-    // Automatically load items when the component is attached
+    // Load existing books on attach
     this.loadItems();
   }
 
   disconnectedCallback() {
-    // Clean up event listeners if needed
     this.removeEventListener('buttonClick', this.onButtonClick);
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
-    // If you'd like to dynamically switch data sources or other configs
     if (name === 'data-source' && oldValue !== newValue) {
-      // Example: console.log('Data source changed:', newValue);
-      // Potentially reload items from a different store
       this.loadItems();
     }
   }
 
   /**
-   * Handles the custom 'buttonClick' event dispatched by <app-button>.
+   * Called when <app-button> dispatches "buttonClick".
+   * Gathers user input, validates, calls addBook(), and refreshes.
    */
   async onButtonClick(e) {
     e.preventDefault();
 
-    const textbox = this.querySelector('text-box');
-    const listView = this.querySelector('list-view');
-    if (!textbox || !listView) return;
+    const titleBox = this.querySelector('text-box[name="title"]');
+    const authorBox = this.querySelector('text-box[name="author"]');
+    const yearBox   = this.querySelector('text-box[name="year"]');
+    const listView  = this.querySelector('list-view');
 
-    const title = (textbox.value || '').trim();
-    if (!title) {
-      // Dispatch a custom event to let something else handle empty input
+    if (!titleBox || !authorBox || !yearBox || !listView) {
+      console.error('Missing inputs or list-view in <app-form>');
+      return;
+    }
+
+    const title = titleBox.value.trim();
+    const author = authorBox.value.trim();
+    const yearString = yearBox.value.trim();
+    const year = parseInt(yearString, 10) || 0; // fallback if empty or invalid
+
+    if (!title || !author) {
+      // Dispatch an event or just alert
       this.dispatchEvent(new CustomEvent('formError', {
         bubbles: true,
         composed: true,
-        detail: { error: 'Title was empty' }
+        detail: { error: 'Please provide at least a title and author.' }
       }));
       return;
     }
 
-    // Insert into IndexedDB (could also handle validations, transformations, etc.)
-    await addItem({ title });
-    textbox.value = ''; // Clear the input
+    // Insert new book record
+    try {
+      await addBook({ title, author, year });
+      // Clear the inputs
+      titleBox.value = '';
+      authorBox.value = '';
+      yearBox.value = '';
+      // Reload the list
+      await this.loadItems();
 
-    // Reload items in the list
-    await this.loadItems();
-
-    // Dispatch a 'formSubmit' event so outside code can react (analytics, etc.)
-    this.dispatchEvent(new CustomEvent('formSubmit', {
-      bubbles: true,
-      composed: true,
-      detail: { title }
-    }));
+      this.dispatchEvent(new CustomEvent('formSubmit', {
+        bubbles: true,
+        composed: true,
+        detail: { title, author, year }
+      }));
+    } catch (err) {
+      console.error('Error adding book:', err);
+      this.dispatchEvent(new CustomEvent('formError', {
+        bubbles: true,
+        composed: true,
+        detail: { error: err.message }
+      }));
+    }
   }
 
   /**
-   * Public method to load and display items in the child <list-view>.
-   * External code could also call this explicitly if needed.
+   * Loads books from the data layer and displays them in <list-view>.
    */
   async loadItems() {
     const listView = this.querySelector('list-view');
     if (!listView) return;
 
-    // Optionally, use the data-source attribute to decide which store/table to query
-    // e.g., const source = this.getAttribute('data-source') || 'items';
-    // for now, we just call getItems() as before
-    const items = await getItems();
-
-    // Render the items
-    listView.innerHTML = '';
-    items.forEach(item => {
-      const card = document.createElement('list-card');
-      card.setAttribute('title', item.title);
-      listView.appendChild(card);
-    });
+    try {
+      const books = await getBooks(); // or getBooks('books') if your data-source logic differs
+      listView.innerHTML = '';
+      books.forEach(book => {
+        const card = document.createElement('list-card');
+        // Show author and year in the subtitle
+        card.setAttribute('title', book.title);
+        card.setAttribute('subtitle', `${book.author} (${book.year || 'Unknown'})`);
+        listView.appendChild(card);
+      });
+    } catch (err) {
+      console.error('Error loading books:', err);
+      // Optionally dispatch an error event
+    }
   }
 });

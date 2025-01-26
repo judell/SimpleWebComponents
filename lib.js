@@ -24,7 +24,6 @@ customElements.define('app-button', class extends HTMLElement {
     connectedCallback() {
         const button = document.createElement('button');
         button.textContent = this.getAttribute('label') || 'Click Me';
-        // Remove the click listener from the button
         this.appendChild(button);
         
         // Add click handler to the component itself

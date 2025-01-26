@@ -1,50 +1,44 @@
 // db.js
 
-export const dbPromise = (function initializeDB() {
-    return new Promise((resolve, reject) => {
-        const request = indexedDB.open('SimpleWebComponentsDB', 1);
+const endpoint = '/query'; // Change if your server is on a different path
 
-        request.onupgradeneeded = function () {
-            const db = request.result;
-            if (!db.objectStoreNames.contains('items')) {
-                db.createObjectStore('items', { keyPath: 'id', autoIncrement: true });
-            }
-        };
+/**
+ * Fetch all books from the "books" table.
+ */
+export async function getBooks() {
+  const sql = 'SELECT * FROM books';
+  const response = await fetch(endpoint, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ sql })
+  });
 
-        request.onsuccess = function () {
-            resolve(request.result);
-        };
+  if (!response.ok) {
+    throw new Error(`Error fetching books: ${response.status} ${response.statusText}`);
+  }
 
-        request.onerror = function () {
-            reject(request.error);
-        };
-    });
-})();
-
-export async function addItem(item) {
-    const db = await dbPromise;
-    const tx = db.transaction('items', 'readwrite');
-    const store = tx.objectStore('items');
-    store.add(item);
-    await tx.done; // Ensure transaction completes
-    console.log("Transaction completed successfully, item added:", item);
+  // The server returns rows as JSON. For example: [{id:1, title:"...", author:"...", year:...}, ...]
+  return response.json();
 }
 
-export async function getItems() {
-    const db = await dbPromise;
-    const tx = db.transaction('items', 'readonly');
-    const store = tx.objectStore('items');
-    
-    return new Promise((resolve, reject) => {
-        const request = store.getAll();
-        request.onsuccess = () => {
-            console.log("Result from getAll:", request.result); // Should be an array
-            resolve(request.result);
-        };
-        request.onerror = () => {
-            console.error("Error in getAll:", request.error);
-            reject(request.error);
-        };
-    });
-}
+/**
+ * Add a new book record (id auto-incremented by the DB).
+ */
+export async function addBook({ title, author, year }) {
+  const sql = 'INSERT INTO books (title, author, year) VALUES (?, ?, ?)';
+  const params = [title, author, year];
 
+  const response = await fetch(endpoint, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ sql, params })
+  });
+
+  if (!response.ok) {
+    throw new Error(`Error adding book: ${response.status} ${response.statusText}`);
+  }
+
+  // If your server returns the newly inserted row or just a success message,
+  // parse it here. We'll assume it returns something like: { success: true, rowId: X }.
+  return response.json();
+}

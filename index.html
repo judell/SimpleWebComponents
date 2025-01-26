@@ -1,39 +1,25 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <title>Balanced Web Components</title>
-    <!-- Include your existing base library with text-box, app-button, etc. -->
-    <script src="lib.js" defer></script>
-
-    <!-- Load the app-form module -->
-    <script type="module" src="app-form.js"></script>
+  <meta charset="UTF-8" />
+  <title>Books Demo</title>
+  <script src="lib.js" defer></script>
+  <script type="module" src="app-form.js"></script>
 </head>
-
 <body>
-    <!-- Demonstration using app-form -->
-    <app-form data-source="items">
-        <text-box placeholder="Enter some text"></text-box>
-        <app-button label="Submit"></app-button>
-        <list-view></list-view>
+  <app-layout layout="vertical">
+    <h1>Book Library</h1>
+
+    <app-form data-source="books">
+      <!-- We'll have three text-boxes, each for a different field -->
+      <text-box name="title" placeholder="Enter title"></text-box>
+      <text-box name="author" placeholder="Enter author"></text-box>
+      <text-box name="year" placeholder="Enter year"></text-box>
+      
+      <app-button label="Add Book"></app-button>
+      
+      <list-view></list-view>
     </app-form>
-
-    <!-- If desired, you can hook into form events in a separate script -->
-    <script>
-        document.addEventListener('formInit', (e) => {
-            console.log('[Global] formInit event:', e.detail);
-        });
-
-        document.addEventListener('formSubmit', (e) => {
-            console.log('[Global] formSubmit event, new item:', e.detail.title);
-        });
-
-        document.addEventListener('formError', (e) => {
-            console.warn('[Global] formError event:', e.detail.error);
-            alert('Cannot submit empty title!');
-        });
-    </script>
+  </app-layout>
 </body>
-
 </html>

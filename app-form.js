@@ -29,7 +29,8 @@ customElements.define('app-form', class extends HTMLElement {
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
-    if (name === 'data-source' && oldValue !== newValue) {
+    console.log('attributeChanged', name, oldValue, newValue)
+    if (name === 'data-source' && oldValue !== null) {
       this.loadItems();
     }
   }
@@ -95,6 +96,7 @@ customElements.define('app-form', class extends HTMLElement {
    * Loads books from the data layer and displays them in <list-view>.
    */
   async loadItems() {
+    console.log('loadItems')
     const listView = this.querySelector('list-view');
     if (!listView) return;
 

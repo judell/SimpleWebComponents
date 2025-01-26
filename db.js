@@ -1,44 +1,51 @@
 // db.js
-
-const endpoint = '/query'; // Change if your server is on a different path
+const ENDPOINT = '/query';
 
 /**
- * Fetch all books from the "books" table.
+ * Fetch all rows from the given table.
+ * You could expand this to handle WHERE, ORDER, etc.
  */
-export async function getBooks() {
-  const sql = 'SELECT * FROM books';
-  const response = await fetch(endpoint, {
+export async function fetchAll(table) {
+  const sql = `SELECT * FROM ${table}`;
+  const response = await fetch(ENDPOINT, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ sql })
   });
 
   if (!response.ok) {
-    throw new Error(`Error fetching books: ${response.status} ${response.statusText}`);
+    throw new Error(`Failed to fetch rows from table ${table}: ` + response.statusText);
   }
 
-  // The server returns rows as JSON. For example: [{id:1, title:"...", author:"...", year:...}, ...]
-  return response.json();
+  return response.json(); // should be an array of objects
 }
 
 /**
- * Add a new book record (id auto-incremented by the DB).
+ * Insert a new record into the specified table.
+ * Dynamically builds an INSERT statement from the object's keys.
  */
-export async function addBook({ title, author, year }) {
-  const sql = 'INSERT INTO books (title, author, year) VALUES (?, ?, ?)';
-  const params = [title, author, year];
+export async function createRecord(table, record) {
+  const keys = Object.keys(record);
+  if (!keys.length) {
+    throw new Error('createRecord called with empty record');
+  }
+  
+  const columns = keys.join(', ');
+  const placeholders = keys.map(() => '?').join(', ');
+  const sql = `INSERT INTO ${table} (${columns}) VALUES (${placeholders})`;
+  const params = keys.map(k => record[k]);
 
-  const response = await fetch(endpoint, {
+  const response = await fetch(ENDPOINT, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ sql, params })
   });
 
   if (!response.ok) {
-    throw new Error(`Error adding book: ${response.status} ${response.statusText}`);
+    throw new Error(`Failed to insert record into table ${table}: ` + response.statusText);
   }
-
-  // If your server returns the newly inserted row or just a success message,
-  // parse it here. We'll assume it returns something like: { success: true, rowId: X }.
+  
+  // The server might return an object with lastInsertRowId or something similar.
+  // Adjust as needed if you want to retrieve that info.
   return response.json();
 }

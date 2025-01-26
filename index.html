@@ -2,24 +2,50 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Books Demo</title>
-  <script src="lib.js" defer></script>
-  <script type="module" src="app-form.js"></script>
-</head>
-<body>
-  <app-layout layout="vertical">
-    <h1>Book Library</h1>
+  <title>Generic Form + Data Source Demo</title>
 
-    <app-form data-source="books">
-      <!-- We'll have three text-boxes, each for a different field -->
-      <text-box name="title" placeholder="Enter title"></text-box>
-      <text-box name="author" placeholder="Enter author"></text-box>
-      <text-box name="year" placeholder="Enter year"></text-box>
-      
-      <app-button label="Add Book"></app-button>
-      
-      <list-view></list-view>
-    </app-form>
-  </app-layout>
+  <!-- 1) Load the UI library (generic components) -->
+  <script type="module" src="lib.js"></script>
+  
+  <!-- 2) Load the custom form logic (app-form) as an ES module (if desired) -->
+  <script type="module" src="app-form.js"></script>
+
+  <!-- 
+    3) db.js is also a module. 
+    If the library or form code imports it, you may not need to load it separately.
+    But if you want it in the global scope for debugging, you could also load it.
+    For example: 
+    <script type="module" src="db.js"></script>
+  -->
+</head>
+
+<body>
+  <h1>Books Demo</h1>
+  
+  <!-- 
+    data-source:
+      - table="books" means it will run SELECT/INSERT on the "books" table
+      - id="booksDS" so <app-form> and <list-view> can reference it
+  -->
+  <data-source id="booksDS" table="books"></data-source>
+
+  <!-- 
+    app-form:
+      - for="booksDS" tells it which data-source to use
+      - the text-boxes have name attributes (title, author, year)
+  -->
+  <app-form for="booksDS">
+    <text-box name="title" placeholder="Enter book title"></text-box>
+    <text-box name="author" placeholder="Enter author"></text-box>
+    <text-box name="year" placeholder="Enter publication year"></text-box>
+    <app-button label="Add Book"></app-button>
+  </app-form>
+
+  <!-- 
+    list-view:
+      - for="booksDS" so it knows which data-source to watch
+      - fields="title,author,year" so it displays those 3 columns
+  -->
+  <list-view for="booksDS" fields="title,author"></list-view>
 </body>
 </html>

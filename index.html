@@ -25,7 +25,7 @@
   
     <data-source id="citiesDS" table="cities"></data-source>
   
-    <app-form for="citiesDS">
+    <app-form for="citiesDS" required="city,state">
       <text-box name="city" placeholder="Enter city name"></text-box>
       <text-box name="state" placeholder="Enter state abbreviation"></text-box>
       <text-box name="population" placeholder="Enter population"></text-box>
@@ -38,7 +38,7 @@
   
     <data-source id="booksDS" table="books"></data-source>
   
-    <app-form for="booksDS">
+    <app-form for="booksDS" required="title,author">
       <text-box name="title" placeholder="Enter book title"></text-box>
       <text-box name="author" placeholder="Enter author"></text-box>
       <text-box name="year" placeholder="Enter publication year"></text-box>

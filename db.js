@@ -22,8 +22,6 @@ export async function fetchAll(table) {
 
   const json = response.json();
 
-  console.log('response json', json)
-
   return json;
 }
 
@@ -55,8 +53,6 @@ export async function createRecord(table, record) {
 
   const json = response.json()
 
-  console.log(json)
-  
   // The server might return an object with lastInsertRowId or something similar.
   // Adjust as needed if you want to retrieve that info.
   return json;

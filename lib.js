@@ -13,12 +13,14 @@ customElements.define('data-source', class extends HTMLElement {
   }
 
   attributeChangedCallback(name, oldVal, newVal) {
+    console.log('data-source attrChangedCallback', oldVal, newVal)
     if (name === 'table' && oldVal !== newVal) {
       this.loadData(); 
     }
   }
 
   connectedCallback() {
+    console.log('data-source', this.getAttribute('table'))
     // On first connect, load data (if table attribute is present)
     const table = this.getAttribute('table');
     if (table) {

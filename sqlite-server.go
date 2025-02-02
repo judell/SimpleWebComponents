@@ -99,6 +99,14 @@ func (s *Server) handleQuery(w http.ResponseWriter, r *http.Request) {
 		result = append(result, entry)
 	}
 
+	// Log the response before sending it
+	responseJSON, err := json.MarshalIndent(result, "", "  ")
+	if err != nil {
+		log.Printf("Error marshaling response for logging: %v", err)
+	} else {
+		log.Printf("Response Body: %s", string(responseJSON))
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(result)
 }

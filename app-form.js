@@ -7,11 +7,13 @@ customElements.define('app-form', class extends HTMLElement {
   
     constructor() {
       super();
+      console.log('app-form constructor');
       this.onButtonClick = this.onButtonClick.bind(this);
     }
   
     connectedCallback() {
       // Listen for "buttonClick" on any child <app-button>
+      console.log('add listener for buttonClick');
       this.addEventListener('buttonClick', this.onButtonClick);
   
       // Optional: an event to signal that this form is ready
@@ -23,16 +25,22 @@ customElements.define('app-form', class extends HTMLElement {
     }
   
     disconnectedCallback() {
+      console.log('remove listener buttonClick');
       this.removeEventListener('buttonClick', this.onButtonClick);
     }
   
     attributeChangedCallback(name, oldVal, newVal) {
+      console.log('app-form attrChangedCallback:', oldVal, newVal)
       if (name === 'for' && oldVal !== newVal) {
         // Optionally, do something if the data-source changes
       }
     }
+
   
     async onButtonClick(e) {
+
+      console.log("app-form button clicked for", this.getAttribute('for'));
+
       e.preventDefault();
   
       // Collect all fields with [name]
@@ -48,18 +56,19 @@ customElements.define('app-form', class extends HTMLElement {
         record[f.getAttribute('name')] = f.value.trim();
       }
   
-      // Simple validation example: require at least "title" or something
-      if (!record.title) {
+      if (Object.values(record).every(v => v === '')) {
+        console.error("Form submission blocked: all fields are empty");
         this.dispatchEvent(new CustomEvent('formError', {
           bubbles: true,
           composed: true,
-          detail: { error: 'Title is required' }
+          detail: { error: 'At least one field must be filled' }
         }));
         return;
       }
-  
+        
       // Identify the <data-source> we need
       const sourceId = this.getAttribute('for');
+      console.log('sourceId: ', sourceId)
       if (!sourceId) {
         console.error('No "for" attribute set on <app-form>');
         return;
@@ -71,15 +80,18 @@ customElements.define('app-form', class extends HTMLElement {
       }
   
       try {
+        console.error('Record being created: ', record)
         // Insert the record
         await dataSource.createRecord(record);
   
+        console.error('clearing fields')
         // Clear fields
         for (const f of fields) {
           f.value = '';
         }
   
         // Dispatch a success event
+        console.error('dispatching success event')
         this.dispatchEvent(new CustomEvent('formSubmit', {
           bubbles: true,
           composed: true,

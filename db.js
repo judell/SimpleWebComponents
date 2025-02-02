@@ -7,6 +7,9 @@ const ENDPOINT = '/query';
  */
 export async function fetchAll(table) {
   const sql = `SELECT * FROM ${table}`;
+
+  console.log('fetchAll', sql)
+
   const response = await fetch(ENDPOINT, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -17,7 +20,11 @@ export async function fetchAll(table) {
     throw new Error(`Failed to fetch rows from table ${table}: ` + response.statusText);
   }
 
-  return response.json(); // should be an array of objects
+  const json = response.json();
+
+  console.log('response json', json)
+
+  return json;
 }
 
 /**
@@ -33,6 +40,7 @@ export async function createRecord(table, record) {
   const columns = keys.join(', ');
   const placeholders = keys.map(() => '?').join(', ');
   const sql = `INSERT INTO ${table} (${columns}) VALUES (${placeholders})`;
+  console.log(sql)
   const params = keys.map(k => record[k]);
 
   const response = await fetch(ENDPOINT, {
@@ -44,8 +52,12 @@ export async function createRecord(table, record) {
   if (!response.ok) {
     throw new Error(`Failed to insert record into table ${table}: ` + response.statusText);
   }
+
+  const json = response.json()
+
+  console.log(json)
   
   // The server might return an object with lastInsertRowId or something similar.
   // Adjust as needed if you want to retrieve that info.
-  return response.json();
+  return json;
 }

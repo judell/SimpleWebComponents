@@ -1,7 +1,7 @@
 // lib.js
 import { fetchAll, createRecord } from './db.js';
 
-// 1) <data-source> : fetches + stores data from a specific table attribute, e.g. table="books".
+
 customElements.define('data-source', class extends HTMLElement {
   constructor() {
     super();
@@ -15,7 +15,7 @@ customElements.define('data-source', class extends HTMLElement {
   attributeChangedCallback(name, oldVal, newVal) {
     console.log('data-source attrChangedCallback', oldVal, newVal)
     if (name === 'table' && oldVal !== newVal) {
-      this.loadData(); 
+      this.loadData();
     }
   }
 
@@ -66,18 +66,35 @@ customElements.define('data-source', class extends HTMLElement {
   }
 });
 
-// 2) <list-view> : displays data from a <data-source for="someSourceId">, plus a fields="title,author,year" attribute
-customElements.define('list-view', class extends HTMLElement {
-  static get observedAttributes() {
-    return ['for', 'fields'];
-  }
+customElements.define('layout-box', class extends HTMLElement {
+  connectedCallback() {
+    this.classList.add('swc-layout-box');
 
-  attributeChangedCallback(name, oldVal, newVal) {
-    if (oldVal !== newVal && (name === 'for' || name === 'fields')) {
-      this.setupDataSource();
+    const layout = this.getAttribute('layout') || 'vertical';
+    const align = this.getAttribute('align') || 'left';
+    const gap = this.getAttribute('gap') || '10px';
+    const responsive = this.hasAttribute('responsive'); // Enable auto-stacking
+
+    this.style.display = 'flex';
+    this.style.flexDirection = layout === 'horizontal' ? 'row' : 'column';
+    this.style.gap = gap;
+
+    switch (align) {
+      case 'center': this.style.justifyContent = 'center'; break;
+      case 'right': this.style.justifyContent = 'flex-end'; break;
+      case 'space-between': this.style.justifyContent = 'space-between'; break;
+      case 'space-around': this.style.justifyContent = 'space-around'; break;
+      default: this.style.justifyContent = 'flex-start';
+    }
+
+    // Apply responsive behavior if enabled
+    if (responsive) {
+      this.style.flexWrap = 'wrap'; // Allow wrapping on small screens
     }
   }
+});
 
+customElements.define('list-view', class extends HTMLElement {
   connectedCallback() {
     this.setupDataSource();
   }
@@ -89,65 +106,67 @@ customElements.define('list-view', class extends HTMLElement {
     const dataSource = document.getElementById(sourceId);
     if (!dataSource) return;
 
-    // Remove old listeners if re-binding
     if (this._onDataLoaded) {
       dataSource.removeEventListener('dataLoaded', this._onDataLoaded);
     }
 
-    // Listen for dataLoaded
     this._onDataLoaded = (e) => {
       this.render(e.detail.records || []);
     };
     dataSource.addEventListener('dataLoaded', this._onDataLoaded);
 
-    // If data is already loaded, render immediately
     if (dataSource.records && dataSource.records.length) {
       this.render(dataSource.records);
     }
   }
 
   render(records) {
-    // Clear existing
-    this.innerHTML = '';
-    
-    // Parse fields attribute
+    // Find the first <list-card> inside <list-view> (used as a template)
+    const template = this.querySelector('list-card');
+    if (!template) {
+      console.error('No <list-card> found inside <list-view>.');
+      return;
+    }
+
+    this.innerHTML = ''; // Clear existing cards
+
     const fieldsAttr = this.getAttribute('fields') || '';
-    const fields = fieldsAttr.split(',')
-      .map(f => f.trim())
-      .filter(Boolean); // e.g. ["title", "author", "year"]
+    const fields = fieldsAttr.split(',').map(f => f.trim()).filter(Boolean);
 
     records.forEach(item => {
-      // We create <list-card> for each row
-      const card = document.createElement('list-card');
-      card.data = { fields, record: item };
+      const card = template.cloneNode(true); // Clone the template
+      card.data = { fields, record: item }; // Populate with data
       this.appendChild(card);
     });
   }
 });
 
-// 3) <list-card> : given a {fields, record} object, displays them
+
 customElements.define('list-card', class extends HTMLElement {
   set data({ fields, record }) {
-    // Build dynamic HTML for each field
     const content = fields.map(fieldName => {
       const val = record[fieldName] ?? '';
       return `<p><strong>${fieldName}:</strong> ${val}</p>`;
     }).join('');
 
-    this.innerHTML = `
-      <div style="border: 1px solid #ccc; padding: 10px; margin: 5px; background: #fff;">
-        ${content}
-      </div>
-    `;
+    // Ensure default styles only if not set by the author
+    if (!this.style.display) this.style.display = 'block';
+    if (!this.style.marginTop) this.style.marginTop = '8px';
+    if (!this.style.padding) this.style.padding = '8px';
+    if (!this.style.border) this.style.border = '1px solid #ccc'; // Match text-box border
+
+    this.innerHTML = content;
   }
 });
 
-// 4) <text-box> : a basic text input with a placeholder
+
+
 customElements.define('text-box', class extends HTMLElement {
   connectedCallback() {
     const input = document.createElement('input');
     input.type = 'text';
     input.placeholder = this.getAttribute('placeholder') || '';
+
     input.style.width = this.getAttribute('width') || '100%';
 
     // optional name to reference in form

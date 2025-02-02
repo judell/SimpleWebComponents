@@ -20,32 +20,32 @@
 </head>
 
 <body>
-  <h1>Books Demo</h1>
+
+    <h1>Cities</h1>
   
-  <!-- 
-    data-source:
-      - table="books" means it will run SELECT/INSERT on the "books" table
-      - id="booksDS" so <app-form> and <list-view> can reference it
-  -->
-  <data-source id="booksDS" table="books"></data-source>
+    <data-source id="citiesDS" table="cities"></data-source>
+  
+    <app-form for="citiesDS">
+      <text-box name="city" placeholder="Enter city name"></text-box>
+      <text-box name="state" placeholder="Enter state abbreviation"></text-box>
+      <text-box name="population" placeholder="Enter population"></text-box>
+      <app-button label="Add City"></app-button>
+    </app-form>
+    <list-view for="citiesDS" fields="city,state"></list-view>
 
-  <!-- 
-    app-form:
-      - for="booksDS" tells it which data-source to use
-      - the text-boxes have name attributes (title, author, year)
-  -->
-  <app-form for="booksDS">
-    <text-box name="title" placeholder="Enter book title"></text-box>
-    <text-box name="author" placeholder="Enter author"></text-box>
-    <text-box name="year" placeholder="Enter publication year"></text-box>
-    <app-button label="Add Book"></app-button>
-  </app-form>
-
-  <!-- 
-    list-view:
-      - for="booksDS" so it knows which data-source to watch
-      - fields="title,author,year" so it displays those 3 columns
-  -->
-  <list-view for="booksDS" fields="title,author"></list-view>
-</body>
+  
+    <h1>Books</h1>
+  
+    <data-source id="booksDS" table="books"></data-source>
+  
+    <app-form for="booksDS">
+      <text-box name="title" placeholder="Enter book title"></text-box>
+      <text-box name="author" placeholder="Enter author"></text-box>
+      <text-box name="year" placeholder="Enter publication year"></text-box>
+      <app-button label="Add Book"></app-button>
+    </app-form>
+  
+    <list-view for="booksDS" fields="title,author"></list-view>
+      
+  </body>
 </html>

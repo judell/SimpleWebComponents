@@ -121,24 +121,36 @@ customElements.define('list-view', class extends HTMLElement {
   }
 
   render(records) {
-    // Find the first <list-card> inside <list-view> (used as a template)
-    const template = this.querySelector('list-card');
+    // Locate the first <list-card> inside <list-view>
+    let template = this.querySelector('list-card');
+
     if (!template) {
-      console.error('No <list-card> found inside <list-view>.');
+      console.error('No <list-card> found inside <list-view>. The HTML should define one.');
       return;
     }
 
-    this.innerHTML = ''; // Clear existing cards
+    // Remove the template from the displayed list but keep it in memory
+    template.remove();
+
+    // Clear existing cards but DO NOT clear template
+    this.innerHTML = '';
+    this.appendChild(template); // Ensure <list-card> remains
 
     const fieldsAttr = this.getAttribute('fields') || '';
     const fields = fieldsAttr.split(',').map(f => f.trim()).filter(Boolean);
 
-    records.forEach(item => {
-      const card = template.cloneNode(true); // Clone the template
-      card.data = { fields, record: item }; // Populate with data
-      this.appendChild(card);
-    });
+    // If there are records, create clones
+    if (records.length > 0) {
+      records.forEach(item => {
+        const card = template.cloneNode(true);
+        card.style.display = 'block'; // Make sure cloned items are visible
+        card.data = { fields, record: item };
+        this.appendChild(card);
+      });
+    }
   }
+
+
 });
 
 

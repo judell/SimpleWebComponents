@@ -62,20 +62,48 @@ An experiment to build a simple library of web components to enable an HTML auth
 
 ## Getting started
 
-## Clone this repo.
+### Clone this repo.
 
 ```bash
 git clone https://github.com/judell/SimpleWebComponents
 cd SimpleWebComponents
 ```
 
-## Get the server.   
+### Get the server
 
-The demo uses a lightweight web server that embeds sqlite. To get it:
+The demo uses a lightweight web server that embeds sqlite. To build it:
 
-- Visit `https://github.com/judell/sqlite-server/tree/main`
+## Install go (if necessary)
 
-- Click `sqlite-server-macos` for Mac, `sqlite-server-linux` for Linux or WSL.
+https://go.dev/doc/install
+
+## Clone the repo
+
+```bash
+git clone https://github.com/judell/sqlite-server/
+cd sqlite-server
+```
+
+## Build the binary
+
+```bash
+go mod tidy
+go build sqlite-server.go
+```
+
+## Copy the binary
+
+```bash
+cp sqlite-server ../SimpleWebComponents
+```
+
+## Alternate for Linux or WSL
+
+If you trust the prebuilt binary in the repo, can:
+
+- Visit `https://github.com/judell/sqlite-server/blob/main/sqlite-server-linux`
+
+- Click `sqlite-server-linux`
 
 - Click the `raw` button to download the binary.
 
@@ -84,13 +112,13 @@ The demo uses a lightweight web server that embeds sqlite. To get it:
 ## Launch the server
 
 ```bash
-./sqlite-server-macos
+./sqlite-server  # if built from source
 ```
 
 or
 
 ```bash
-./sqlite-server-linux
+./sqlite-server-linux  # if downloaded
 ```
 
 ## Launch the app

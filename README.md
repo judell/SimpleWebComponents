@@ -66,7 +66,7 @@ An experiment to build a simple library of web components to enable an HTML auth
 
 ```bash
 git clone https://github.com/judell/SimpleWebComponents
-cd SimpleWebServer
+cd SimpleWebComponents
 ```
 
 ## Get the server.   

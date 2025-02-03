@@ -13,7 +13,7 @@ customElements.define('app-form', class extends HTMLElement {
 
         // Ensure "required" attribute is set
         if (!this.hasAttribute('required')) {
-            console.error('<app-form> missing required="..." attribute');
+            alert('<app-form> missing required="..." attribute');
             return;
         }
         console.log('addEventListener')
@@ -35,19 +35,19 @@ customElements.define('app-form', class extends HTMLElement {
 
         const sourceId = this.getAttribute('for');
         if (!sourceId) {
-            console.error('No "for" attribute set on <app-form>');
+            alert('No "for" attribute set on <app-form>');
             return;
         }
 
         const dataSource = document.getElementById(sourceId);
         if (!dataSource) {
-            console.error('Could not find data-source with id:', sourceId);
+            alert('Could not find data-source with id: ' + sourceId);
             return;
         }
 
         const fields = Array.from(this.querySelectorAll('[name]'));
         if (!fields.length) {
-            console.warn('No [name] fields found in <app-form>');
+            alert('No [name] fields found in <app-form>');
             return;
         }
 
@@ -64,7 +64,7 @@ customElements.define('app-form', class extends HTMLElement {
         const missingFields = requiredFields.filter(field => !record[field]);
 
         if (missingFields.length) {
-            console.error("Form validation failed. Missing fields:", missingFields);
+            alert("Form validation failed. Missing fields: " + JSON.stringify(missingFields));
             this.dispatchEvent(new CustomEvent('formError', {
                 bubbles: true,
                 composed: true,

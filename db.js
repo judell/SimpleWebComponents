@@ -34,7 +34,7 @@ export async function createRecord(table, record) {
   if (!keys.length) {
     throw new Error('createRecord called with empty record');
   }
-  
+
   const columns = keys.join(', ');
   const placeholders = keys.map(() => '?').join(', ');
   const sql = `INSERT INTO ${table} (${columns}) VALUES (${placeholders})`;

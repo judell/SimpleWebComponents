@@ -1,23 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8" />
   <title>Generic Form + Data Source Demo</title>
-
-  <!-- 1) Load the UI library (generic components) -->
   <script type="module" src="lib.js"></script>
-
-  <!-- 2) Load the custom form logic (app-form) as an ES module (if desired) -->
   <script type="module" src="app-form.js"></script>
-
-  <!-- 
-    3) db.js is also a module. 
-    If the library or form code imports it, you may not need to load it separately.
-    But if you want it in the global scope for debugging, you could also load it.
-    For example: 
-    <script type="module" src="db.js"></script>
-  -->
 <style>
   body {
     font-family: Arial, Helvetica, sans-serif;
@@ -29,7 +16,7 @@
 
   <h1 style="text-align: center;">Cities and Books</h1>
 
-  <layout-box layout="horizontal" align="center" gap="20px" responsive>
+  <layout-box layout="horizontal" responsive>
 
     <data-source id="citiesDS" table="cities"></data-source>
 
@@ -38,7 +25,7 @@
       <layout-box layout="vertical">
         <h2>Cities</h2>
         <text-box style="width:15em" name="city" placeholder="Keene"></text-box>
-        <text-box style="width:2em" name="state" placeholder="CA"></text-box>
+        <text-box style="width:2em" name="state" placeholder="NH"></text-box>
         <text-box style="width:4em" name="population" placeholder="23000"></text-box>
         <app-button style="text-align: left;" label="Add City"></app-button>
         <list-view style="text-align: left;" for="citiesDS" fields="city,state,population">

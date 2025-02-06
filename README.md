@@ -99,29 +99,14 @@ cp sqlite-server ../SimpleWebComponents
 
 ## Alternate for Linux or WSL
 
-If you trust the prebuilt binary in the repo, can:
-
-- Visit `https://github.com/judell/sqlite-server/blob/main/sqlite-server-linux`
-
-- Click `sqlite-server-linux`
-
-- Click the `raw` button to download the binary.
-
-- Move the binary to `~/SimpleWebComponents`
+If you trust the prebuilt binary in the repo, you can use the included `sqlite-server-linux`.
 
 ## Launch the server
 
 ```bash
-./sqlite-server  # if built from source
+./sqlite-server [-port port] # default 8080
 ```
-
-or
-
-```bash
-./sqlite-server-linux  # if downloaded
-```
-
 ## Launch the app
 
-Visit localhost:8080
+Visit localhost:8080 # or [port]
 
